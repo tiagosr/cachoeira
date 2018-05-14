@@ -1,0 +1,31 @@
+[package]
+name = "cachoeira"
+version = "0.1.0"
+authors = ["Tiago Rezende <tiagosr@gmail.com>"]
+description = "Data-oriented massively-parallel game and interactive-installation framework written in Rust"
+exclude = ["examples/*"]
+keywords = ["game", "art-installation", "creative-coding", "engine", "framework", "cachoeira"]
+categories = ["game-engines", "creative-coding"]
+
+[features]
+profiler = [
+	"thread_profiler",
+	"thread_profiler/thread_profiler",
+	"cachoeira_core/thread_profiler"
+]
+nightly = [
+	"cachoeira_core/nightly"
+]
+
+[dependencies]
+cachoeira_core = { path = "cachoeira_core", version = "0.1.0" }
+rand = "0.4.0"
+winit = "0.13.1"
+
+thread_profiler = { version = "0.1", optional = true }
+
+[dev-dependencies]
+serde = "1.0"
+serde_derive = "1.0"
+
+[build-dependencies]

@@ -1,0 +1,10 @@
+Cargo.lock
+target
+
+
+.DS_Store
+thumbs.db
+*~
+*.rs.bk
+
+thread_profile.json

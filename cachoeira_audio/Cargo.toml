@@ -1,0 +1,6 @@
+[package]
+name = "cachoeira_audio"
+version = "0.1.0"
+authors = ["Tiago Rezende <tiagosr@gmail.com>"]
+
+[dependencies]
