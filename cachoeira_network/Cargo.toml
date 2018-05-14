@@ -1,0 +1,8 @@
+[package]
+name = "cachoeira_network"
+version = "0.1.0"
+authors = ["Tiago Rezende <tiagosr@gmail.com>"]
+
+[dependencies]
+cachoeira_core = { path = "../cachoeira_core", version = "0.1.0" }
+rosc = "~0.1"

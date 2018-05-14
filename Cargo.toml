@@ -21,6 +21,7 @@ nightly = [
 cachoeira_core = { path = "cachoeira_core", version = "0.1.0" }
 rand = "0.4.0"
 winit = "0.13.1"
+rosc = "~0.1"
 
 thread_profiler = { version = "0.1", optional = true }
 

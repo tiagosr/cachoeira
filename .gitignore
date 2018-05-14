@@ -1,10 +1,17 @@
+# Cargo/Rust temp and build files
 Cargo.lock
 target
 
-
+# OS/IDE files
 .DS_Store
 thumbs.db
 *~
 *.rs.bk
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
+# thread profiler data
 thread_profile.json
