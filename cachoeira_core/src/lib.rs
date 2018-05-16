@@ -24,6 +24,7 @@ use std::sync::Arc;
 
 pub mod timing;
 pub mod console;
+pub mod engine_system;
 
 pub type ThreadPool = Arc<rayon::ThreadPool>;
 
