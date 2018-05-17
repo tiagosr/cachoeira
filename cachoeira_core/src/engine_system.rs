@@ -1,9 +1,10 @@
-use std::sync::{Arc, Mutex, Once, ONCE_INIT};
+use std::sync::{Arc, RwLock, Once, ONCE_INIT};
 use std::{mem, thread};
 use std::collections::{VecDeque, HashMap};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use std::fmt::{Debug, Formatter, Result as FResult};
+
 use super::console::{ConsoleContext};
 
 /*
@@ -29,25 +30,55 @@ impl EngineSystem for ConsoleContext {
     }
 }
 
-pub type EngineSystemRef = Arc<RefCell<EngineSystem>>;
+pub type EngineSystemRef = Arc<RwLock<EngineSystem>>;
+type EngineSystemMap = HashMap<String, EngineSystemRef>;
 
 struct SystemManagerData {
-    pub systems: Cell<VecDeque<EngineSystemRef>>,
-    pub initialized_systems: Cell<HashMap<String, EngineSystemRef>>,
+    pub systems: RwLock<VecDeque<EngineSystemRef>>,
+    pub initialized_systems: RwLock<HashMap<String, EngineSystemRef>>,
 }
 
 impl SystemManagerData {
     fn new() -> Self {
         Self {
-            systems: Cell::new(VecDeque::new()),
-            initialized_systems: Cell::new(HashMap::new())
+            systems: RwLock::new(VecDeque::new()),
+            initialized_systems: RwLock::new(HashMap::new()),
         }
+    }
+    fn add_system(&mut self, system: EngineSystemRef) -> Result<String, String> {
+        let name = system.read().unwrap().get_name();
+        match system.write().unwrap().setup() {
+            Ok(message) => {
+                self.initialized_systems.write().unwrap().insert(name.clone(), system.clone());
+                Ok(format!("{} added: {}", name, message))
+            },
+            Err(message) => Err(format!("{} add FAILED! {}", name, message))
+        }
+    }
+
+    fn remove_system_by_name(&mut self, name: String) -> Result<String, String> {
+        match self.initialized_systems.write().unwrap().get(&name) {
+            None => Err(format!("{} not registered", name)),
+            Some(found) => {
+                match found.write().unwrap().teardown() {
+                    Ok(message) => {
+                        self.initialized_systems.write().unwrap().remove(&name);
+                        Ok(format!("{} removed: {}", name, message))
+                    },
+                    Err(message) => Err(format!("{} removal FAILED! {}", name, message))
+                }
+            }
+        }
+    }
+
+    fn remove_system(&mut self, system: EngineSystemRef) -> Result<String, String> {
+        self.remove_system_by_name(system.read().unwrap().get_name())
     }
 }
 
 #[derive(Clone)]
 pub struct SystemManager {
-    inner: Rc<RefCell<SystemManagerData>>,
+    inner: Arc<RwLock<SystemManagerData>>,
 }
 
 
@@ -60,7 +91,7 @@ impl SystemManager {
         unsafe {
             ONCE.call_once(|| {
                 let manager = Self {
-                    inner: Rc::new(RefCell::new(SystemManagerData::new()))
+                    inner: Arc::new(RwLock::new(SystemManagerData::new()))
                 };
 
                 SINGLETON = mem::transmute(Box::new(manager));
@@ -70,9 +101,11 @@ impl SystemManager {
         }
     }
 
-    fn register_system(&self, system: Box<EngineSystem>) -> &Self {
-        let systems = self.inner.borrow_mut();
-        
-        self
+    fn register_system(&self, system: EngineSystemRef) -> Result<String, String> {
+        self.inner.write().unwrap().add_system(system)
+    }
+
+    fn unregister_system(&self, system: EngineSystemRef) -> Result<String, String> {
+        self.inner.write().unwrap().remove_system(system)
     }
 }

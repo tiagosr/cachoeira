@@ -1,7 +1,9 @@
+use super::pipeline;
+
 struct Device {
 }
 
 trait UsesPipeline {
-    fn use_pipeline(&mut self, )
+    fn set_pipeline(&mut self, )
 }
 
