@@ -13,21 +13,15 @@ use super::console::{ConsoleContext};
  */
 pub trait EngineSystem {
     fn get_name(&self) -> String;
-    fn setup(&mut self) -> Result<String, String>;
-    fn setup_console_vars(&mut self, &mut ConsoleContext) -> Result<String, String> {
-        Ok("no console variables to set".to_string())
-    }
-    fn teardown(&mut self) -> Result<String, String>;
+    fn setup(&mut self) -> Result<(), String>;
+    fn setup_console_vars(&mut self, &mut ConsoleContext) -> Result<(), String> { Ok(()) }
+    fn teardown(&mut self) -> Result<(), String>;
 }
 
 impl EngineSystem for ConsoleContext {
     fn get_name(&self) -> String { "ConsoleContext".to_string() }
-    fn setup(&mut self) -> Result<String, String> {
-        Ok("ConsoleContext setup finished".to_string())
-    }
-    fn teardown(&mut self) -> Result<String, String> {
-        Ok("ConsoleContext teardown finished".to_string())
-    }
+    fn setup(&mut self) -> Result<(), String> { Ok(()) }
+    fn teardown(&mut self) -> Result<(), String> { Ok(()) }
 }
 
 pub type EngineSystemRef = Arc<RwLock<EngineSystem>>;
@@ -45,25 +39,25 @@ impl SystemManagerData {
             initialized_systems: RwLock::new(HashMap::new()),
         }
     }
-    fn add_system(&mut self, system: EngineSystemRef) -> Result<String, String> {
+    fn add_system(&mut self, system: EngineSystemRef) -> Result<(), String> {
         let name = system.read().unwrap().get_name();
         match system.write().unwrap().setup() {
-            Ok(message) => {
+            Ok(_) => {
                 self.initialized_systems.write().unwrap().insert(name.clone(), system.clone());
-                Ok(format!("{} added: {}", name, message))
+                Ok(())
             },
             Err(message) => Err(format!("{} add FAILED! {}", name, message))
         }
     }
 
-    fn remove_system_by_name(&mut self, name: String) -> Result<String, String> {
+    fn remove_system_by_name(&mut self, name: String) -> Result<(), String> {
         match self.initialized_systems.write().unwrap().get(&name) {
             None => Err(format!("{} not registered", name)),
             Some(found) => {
                 match found.write().unwrap().teardown() {
-                    Ok(message) => {
+                    Ok(_) => {
                         self.initialized_systems.write().unwrap().remove(&name);
-                        Ok(format!("{} removed: {}", name, message))
+                        Ok(())
                     },
                     Err(message) => Err(format!("{} removal FAILED! {}", name, message))
                 }
@@ -71,7 +65,7 @@ impl SystemManagerData {
         }
     }
 
-    fn remove_system(&mut self, system: EngineSystemRef) -> Result<String, String> {
+    fn remove_system(&mut self, system: EngineSystemRef) -> Result<(), String> {
         self.remove_system_by_name(system.read().unwrap().get_name())
     }
 }
@@ -101,11 +95,11 @@ impl SystemManager {
         }
     }
 
-    fn register_system(&self, system: EngineSystemRef) -> Result<String, String> {
+    fn register_system(&self, system: EngineSystemRef) -> Result<(), String> {
         self.inner.write().unwrap().add_system(system)
     }
 
-    fn unregister_system(&self, system: EngineSystemRef) -> Result<String, String> {
+    fn unregister_system(&self, system: EngineSystemRef) -> Result<(), String> {
         self.inner.write().unwrap().remove_system(system)
     }
 }
