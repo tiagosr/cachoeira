@@ -3,3 +3,6 @@
 #include "engine_system.h"
 #include "result.h"
 
+namespace cc {
+
+}

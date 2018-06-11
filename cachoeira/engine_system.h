@@ -17,7 +17,7 @@ namespace cc {
         virtual Result<void, string> teardown() = 0;
     };
 
-    class SystemManager {
+    class SystemManager : public non_copyable {
         map<const string, shared_ptr<IEngineSystem>> systems;
         static unique_ptr<SystemManager> instance;
         SystemManager();

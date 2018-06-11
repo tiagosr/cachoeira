@@ -5,7 +5,7 @@
 namespace cc {
 
 
-    class EntityManager: public IEngineSystem {
+    class EntityManager: public IEngineSystem, public non_copyable {
     public:
         virtual ~EntityManager() {}
         virtual string get_name() const override;
