@@ -3,6 +3,7 @@
 #include <iostream>
 #include "engine_system.h"
 #include "types.h"
+#include "timing.h"
 
 namespace cc {
     namespace Logging {

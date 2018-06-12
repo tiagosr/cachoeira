@@ -31,7 +31,7 @@ namespace cc {
             }
             return remove_system_by_name(system_ptr->get_name());
         }
-        SystemManager& get();
+        static SystemManager& get();
     };
 }
 

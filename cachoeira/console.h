@@ -60,5 +60,11 @@ namespace cc {
             return VarQueryResult(it->second->get());
         }
 
+        virtual string get_name() const override {
+            return "ConsoleContext";
+        }
+        virtual Result<void, string> setup() override;
+        virtual Result<void, string> setup_console_vars() override;
+        virtual Result<void, string> teardown() override;
     };
 }
