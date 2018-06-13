@@ -10,7 +10,11 @@ SystemManager::SystemManager() {
 }
 
 SystemManager::~SystemManager() {
-
+    for (auto& system : systems) {
+        if (system.second) {
+            system.second->teardown();
+        }
+    }
 }
 
 Result<void, string> SystemManager::add_system(shared_ptr<IEngineSystem> system) {
